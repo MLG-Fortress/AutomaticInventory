@@ -1,7 +1,6 @@
 package me.ryanhamshire.AutomaticInventory;
 
-enum Features
-{
+enum Features {
     RefillStacks,
     SortInventory,
     SortChests,
