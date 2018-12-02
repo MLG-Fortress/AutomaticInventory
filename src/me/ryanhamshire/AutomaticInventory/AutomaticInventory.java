@@ -261,8 +261,6 @@ public class AutomaticInventory extends JavaPlugin {
                 return true;
             }
 
-            DeliverTutorialHyperlink(player);
-
             return true;
         } else if (cmd.getName().equalsIgnoreCase("depositall") && player != null) {
             //ensure player has feature enabled
@@ -298,10 +296,6 @@ public class AutomaticInventory extends JavaPlugin {
         }
 
         return false;
-    }
-
-    void DeliverTutorialHyperlink(Player player) {
-        //todo: deliver tutorial link to player
     }
 
     public void onDisable() {
