@@ -39,7 +39,7 @@ dependencies {
 jar {
     baseName = "${project.name}"
     version = rootProject?.version ?: project.version
-    destinationDir = rootProject?.distFolder ?: libsDir
+    destinationDir = rootProject?.libsDir ?: libsDir
 }
 
 build.dependsOn = ['jar']
