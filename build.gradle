@@ -19,8 +19,6 @@ apply plugin: "com.github.johnrengelman.shadow"
 apply plugin: "java"
 apply plugin: "idea"
 
-project.ext.set("distFolder", project.file("dist"))
-
 configurations {
     compile.extendsFrom(bundle)
 }
@@ -39,11 +37,9 @@ dependencies {
 }
 
 jar {
-    baseName = "${project.name}.jar"
+    baseName = "${project.name}"
     version = rootProject?.version ?: project.version
     destinationDir = rootProject?.distFolder ?: project.distFolder
 }
-
-new File("dist").deleteDir()
 
 build.dependsOn = ['jar']
