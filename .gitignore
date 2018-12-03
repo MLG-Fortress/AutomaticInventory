@@ -1,9 +1,2 @@
-*.class
-*.iml
-.classpath
-.project
 .DS_Store
-bin*/
 build/
-.*/
-server/
