@@ -23,7 +23,8 @@ configurations {
     compile.extendsFrom(bundle)
 }
 
-version = LocalDateTime.now(ZoneId.of("America/Chicago")).format(DateTimeFormatter.ofPattern("yyMMddHHmm"))
+version = "2"
+if (project.hasProperty("Release")) version += '-' + LocalDateTime.now(ZoneId.of("America/Chicago")).format(DateTimeFormatter.ofPattern("yyMMddHHmm"))
 
 
 repositories {
@@ -37,7 +38,7 @@ dependencies {
 }
 
 jar {
-    baseName = "${project.name}"
+    baseName = "Generated-${project.name}"
     version = rootProject?.version ?: project.version
     destinationDir = rootProject?.libsDir ?: libsDir
 }
