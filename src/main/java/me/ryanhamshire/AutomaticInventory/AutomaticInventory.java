@@ -82,9 +82,8 @@ public class AutomaticInventory extends JavaPlugin {
         }
     }
 
-    @SuppressWarnings("deprecation")
     static DepositRecord depositMatching(PlayerInventory source, Inventory destination, boolean depositHotbar) {
-        HashSet<String> eligibleSignatures = new HashSet<String>();
+        HashSet<String> eligibleSignatures = new HashSet<>();
         DepositRecord deposits = new DepositRecord();
         for (int i = 0; i < destination.getSize(); i++) {
             ItemStack destinationStack = destination.getItem(i);
@@ -132,7 +131,7 @@ public class AutomaticInventory extends JavaPlugin {
     private static String getSignature(ItemStack stack) {
         String signature = stack.getType().name();
         if (stack.getMaxStackSize() > 1) {
-            signature += "." + String.valueOf(stack.getData().getData());
+            signature += "." + stack.getDurability();
         }
         return signature;
     }
@@ -213,19 +212,7 @@ public class AutomaticInventory extends JavaPlugin {
             playerData = PlayerData.FromPlayer(player);
         }
 
-        if (cmd.getName().equalsIgnoreCase("debugai") && player != null) {
-            PlayerInventory inventory = player.getInventory();
-            inventory.getItemInMainHand().setDurability(Short.MAX_VALUE);
-		    /*
-		    for(int i = 0; i < inventory.getSize(); i++)
-		    {
-		        ItemStack stack = inventory.getItem(i);
-		        if(stack != null)
-		        AutomaticInventory.logger.info(String.valueOf(i) + " : " + stack.getType().name());
-		    }*/
-
-            return true;
-        } else if (cmd.getName().equalsIgnoreCase("autosort") && player != null) {
+        if (cmd.getName().equalsIgnoreCase("autosort") && player != null) {
             if (args.length < 1) {
                 sendMessage(player, TextMode.Instr, Messages.AutoSortHelp);
                 return true;
@@ -299,9 +286,7 @@ public class AutomaticInventory extends JavaPlugin {
     }
 
     public void onDisable() {
-        @SuppressWarnings("unchecked")
-        Collection<Player> players = (Collection<Player>) this.getServer().getOnlinePlayers();
-        for (Player player : players) {
+        for (Player player : getServer().getOnlinePlayers()) {
             PlayerData data = PlayerData.FromPlayer(player);
             data.saveChanges();
             data.waitForSaveComplete();
