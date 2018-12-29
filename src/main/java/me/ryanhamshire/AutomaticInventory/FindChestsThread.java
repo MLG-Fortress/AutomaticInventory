@@ -53,7 +53,7 @@ public class FindChestsThread extends Thread {
             Vector current = leftToVisit.remove();
 
             Material type = this.getType(current);
-            if (type == Material.TRAPPED_CHEST || type == Material.ENDER_CHEST || type.name().contains("SHULKER")) {
+            if (type == Material.CHEST || type == Material.TRAPPED_CHEST || type == Material.ENDER_CHEST || type.name().contains("SHULKER")) {
                 Material overType = this.getType(new Vector(current.getBlockX(), current.getBlockY() + 1, current.getBlockZ()));
                 if (!AutomaticInventory.preventsChestOpen(overType)) {
                     chestLocations.add(this.makeLocation(current));
@@ -155,11 +155,6 @@ public class FindChestsThread extends Thread {
             Location chestLocation = this.remainingChestLocations.poll();
             if (chestLocation == null) {
                 AutomaticInventory.sendMessage(this.player, TextMode.Success, Messages.SuccessfulDepositAll2, String.valueOf(this.runningDepositRecord.totalItems));
-                PlayerData playerData = PlayerData.FromPlayer(player);
-                if (Math.random() < .1 && !playerData.isGotQuickDepositInfo() && AIEventHandler.featureEnabled(Features.QuickDeposit, player)) {
-                    AutomaticInventory.sendMessage(player, TextMode.Instr, Messages.QuickDepositAdvertisement3);
-                    playerData.setGotQuickDepositInfo(true);
-                }
             } else {
                 Block block = chestLocation.getBlock();
                 PlayerInteractEvent fakeEvent = AutomaticInventory.instance.new FakePlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, player.getInventory().getItemInMainHand(), block, BlockFace.UP);

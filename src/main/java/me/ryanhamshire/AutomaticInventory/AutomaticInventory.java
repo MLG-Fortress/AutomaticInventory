@@ -34,29 +34,6 @@ public class AutomaticInventory extends JavaPlugin {
     Set<Material> config_noAutoRefillIDs = new HashSet<>();
     Set<Material> config_noAutoDepositIDs = new HashSet<>();
 
-    static boolean hasPermission(Features feature, Player player) {
-        boolean hasPermission = false;
-        switch (feature) {
-            case SortInventory:
-                hasPermission = player.hasPermission("automaticinventory.sortinventory");
-                break;
-            case SortChests:
-                hasPermission = player.hasPermission("automaticinventory.sortchests");
-                break;
-            case RefillStacks:
-                hasPermission = player.hasPermission("automaticinventory.refillstacks");
-                break;
-            case QuickDeposit:
-                hasPermission = player.hasPermission("automaticinventory.quickdeposit");
-                break;
-            case DepositAll:
-                hasPermission = player.hasPermission("automaticinventory.depositall");
-                break;
-        }
-
-        return hasPermission;
-    }
-
     static void sendMessage(Player player, ChatColor color, Messages messageID, String... args) {
         sendMessage(player, color, messageID, 0, args);
     }
@@ -192,11 +169,6 @@ public class AutomaticInventory extends JavaPlugin {
 
             String optionName = args[0].toLowerCase();
             if (optionName.startsWith("chest")) {
-                if (!hasPermission(Features.SortChests, player)) {
-                    sendMessage(player, TextMode.Err, Messages.NoPermissionForFeature);
-                    return true;
-                }
-
                 playerData.setSortChests(!playerData.isSortChests());
 
                 if (playerData.isSortChests())
@@ -204,11 +176,6 @@ public class AutomaticInventory extends JavaPlugin {
                 else
                     sendMessage(player, TextMode.Success, Messages.ChestSortDisabled);
             } else if (optionName.startsWith("inv")) {
-                if (!hasPermission(Features.SortInventory, player)) {
-                    sendMessage(player, TextMode.Err, Messages.NoPermissionForFeature);
-                    return true;
-                }
-
                 playerData.setSortInventory(!playerData.isSortInventory());
 
                 if (playerData.isSortInventory())
@@ -222,11 +189,6 @@ public class AutomaticInventory extends JavaPlugin {
 
             return true;
         } else if (cmd.getName().equalsIgnoreCase("depositall") && player != null) {
-            //ensure player has feature enabled
-            if (!AIEventHandler.featureEnabled(Features.DepositAll, player)) {
-                AutomaticInventory.sendMessage(player, TextMode.Err, Messages.NoPermissionForFeature);
-                return true;
-            }
 
             //gather snapshots of adjacent chunks
             Location location = player.getLocation();
@@ -250,7 +212,6 @@ public class AutomaticInventory extends JavaPlugin {
             thread.setPriority(Thread.MIN_PRIORITY);
             thread.start();
 
-            playerData.setUsedDepositAll(true);
             return true;
         }
 

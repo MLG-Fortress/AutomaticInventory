@@ -28,38 +28,8 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class AIEventHandler implements Listener {
-    static boolean featureEnabled(Features feature, Player player) {
-        if (!AutomaticInventory.hasPermission(feature, player)) return false;
-
-        PlayerData data = PlayerData.FromPlayer(player);
-
-        switch (feature) {
-            case SortInventory:
-                if (data.isSortInventory()) return true;
-                break;
-            case SortChests:
-                if (data.isSortChests()) return true;
-                break;
-            case RefillStacks:
-                return true;
-            case QuickDeposit:
-                return true;
-            case DepositAll:
-                return true;
-        }
-
-        return false;
-    }
-
-    static void sortPlayerIfEnabled(Player player, PlayerData playerData, Inventory inventory) {
-        if (featureEnabled(Features.SortInventory, player)) {
-            new InventorySorter(inventory, 9).run();
-
-            if (!playerData.isGotInventorySortInfo()) {
-                AutomaticInventory.sendMessage(player, TextMode.Info, Messages.InventorySortEducation);
-                playerData.setGotInventorySortInfo(true);
-            }
-        }
+    static void sortPlayerIfEnabled(Inventory inventory) {
+        new InventorySorter(inventory, 9).run();
     }
 
     static boolean isSortableChestInventory(Inventory inventory) {
@@ -123,10 +93,8 @@ public class AIEventHandler implements Listener {
     private void tryRefillStackInHand(Player player, EquipmentSlot slot, boolean dataValueMatters) {
         if (slot == null) return;
 
-        if (!featureEnabled(Features.RefillStacks, player)) return;
-
-        ItemStack stack = null;
-        int slotIndex = 0;
+        ItemStack stack;
+        int slotIndex;
         if (slot == EquipmentSlot.HAND) {
             stack = player.getInventory().getItemInMainHand();
             slotIndex = player.getInventory().getHeldItemSlot();
@@ -151,8 +119,6 @@ public class AIEventHandler implements Listener {
     public void onBlockDamage(BlockDamageEvent event) {
         Player player = event.getPlayer();
         if (!player.isSneaking()) return;
-
-        if (!featureEnabled(Features.QuickDeposit, player)) return;
 
         Block clickedBlock = event.getBlock();
         if (clickedBlock == null) return;
@@ -203,19 +169,14 @@ public class AIEventHandler implements Listener {
 
         Player player = (Player) holder;
         PlayerData playerData = PlayerData.FromPlayer(player);
-        sortPlayerIfEnabled(player, playerData, bottomInventory);
+        sortPlayerIfEnabled(bottomInventory);
 
-        if (!player.isSneaking() && featureEnabled(Features.SortChests, player)) {
+        if (!player.isSneaking()) {
             Inventory topInventory = event.getView().getTopInventory();
             if (!isSortableChestInventory(topInventory)) return;
 
             InventorySorter sorter = new InventorySorter(topInventory, 0);
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(AutomaticInventory.instance, sorter, 1L);
-
-            if (!playerData.isGotChestSortInfo()) {
-                AutomaticInventory.sendMessage(player, TextMode.Info, Messages.ChestSortEducation3);
-                playerData.setGotChestSortInfo(true);
-            }
         }
     }
 
@@ -231,31 +192,22 @@ public class AIEventHandler implements Listener {
         Player player = (Player) holder;
         PlayerData playerData = PlayerData.FromPlayer(player);
 
-        sortPlayerIfEnabled(player, playerData, bottomInventory);
-
-        if (player.getGameMode() != GameMode.CREATIVE && Math.random() < .1 && !playerData.isGotDepositAllInfo() && featureEnabled(Features.DepositAll, player)) {
-            Inventory topInventory = event.getView().getTopInventory();
-            if (topInventory != null && topInventory.getType() == InventoryType.CHEST) {
-                AutomaticInventory.sendMessage(player, TextMode.Instr, Messages.DepositAllAdvertisement);
-                playerData.setGotDepositAllInfo(true);
-            }
-        }
+        sortPlayerIfEnabled(bottomInventory);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPickupItem(PlayerPickupItemEvent event) {
         Player player = event.getPlayer();
-        if (featureEnabled(Features.SortInventory, player)) {
-            PlayerData playerData = PlayerData.FromPlayer(player);
-            if (playerData.firstEmptySlot >= 0) return;
+        PlayerData playerData = PlayerData.FromPlayer(player);
+        if (playerData.firstEmptySlot >= 0) return;
 
-            PlayerInventory inventory = player.getInventory();
-            int firstEmpty = inventory.firstEmpty();
-            if (firstEmpty < 9) return;
-            playerData.firstEmptySlot = firstEmpty;
-            PickupSortTask task = new PickupSortTask(player, playerData, inventory);
-            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(AutomaticInventory.instance, task, 100L);
-        }
+        PlayerInventory inventory = player.getInventory();
+        int firstEmpty = inventory.firstEmpty();
+        if (firstEmpty < 9) return;
+        playerData.firstEmptySlot = firstEmpty;
+        PickupSortTask task = new PickupSortTask(player, playerData, inventory);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(AutomaticInventory.instance, task, 100L);
+
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -312,12 +264,6 @@ public class AIEventHandler implements Listener {
 
             this.targetInventory.setItem(this.slotToRefill, bestMatchStack);
             this.targetInventory.clear(bestMatchSlot);
-
-            PlayerData playerData = PlayerData.FromPlayer(player);
-            if (!playerData.isGotRestackInfo()) {
-                AutomaticInventory.sendMessage(player, TextMode.Info, Messages.AutoRefillEducation);
-                playerData.setGotRestackInfo(true);
-            }
         }
     }
 }
@@ -340,7 +286,7 @@ class PickupSortTask implements Runnable {
             return;
         }
 
-        AIEventHandler.sortPlayerIfEnabled(this.player, this.playerData, this.playerInventory);
+        AIEventHandler.sortPlayerIfEnabled(this.playerInventory);
 
         this.playerData.firstEmptySlot = -1;
     }

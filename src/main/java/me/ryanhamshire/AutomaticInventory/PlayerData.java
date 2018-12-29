@@ -24,10 +24,6 @@ class PlayerData {
     private boolean gotInventorySortInfo = false;
     private boolean gotRestackInfo = false;
     private boolean usedQuickDeposit = false;
-    private int manualDepositsThisSession = 0;
-    private boolean gotQuickDepositInfo = false;
-    private boolean gotDepositAllInfo = false;
-    private boolean usedDepositAll = false;
     private UUID playerID;
     private boolean isDirty = false;
     private boolean sortChests = true;
@@ -63,38 +59,6 @@ class PlayerData {
         this.isDirty = true;
     }
 
-    void setUsedDepositAll(boolean usedDepositAll) {
-        this.usedDepositAll = usedDepositAll;
-        this.isDirty = true;
-    }
-
-    boolean isGotChestSortInfo() {
-        return gotChestSortInfo;
-    }
-
-    void setGotChestSortInfo(boolean gotChestSortInfo) {
-        this.gotChestSortInfo = gotChestSortInfo;
-        this.isDirty = true;
-    }
-
-    boolean isGotInventorySortInfo() {
-        return gotInventorySortInfo;
-    }
-
-    void setGotInventorySortInfo(boolean gotInventorySortInfo) {
-        this.gotInventorySortInfo = gotInventorySortInfo;
-        this.isDirty = true;
-    }
-
-    boolean isGotRestackInfo() {
-        return gotRestackInfo;
-    }
-
-    void setGotRestackInfo(boolean gotRestackInfo) {
-        this.gotRestackInfo = gotRestackInfo;
-        this.isDirty = true;
-    }
-
     boolean isSortChests() {
         this.waitForLoadComplete();
         return sortChests;
@@ -113,22 +77,6 @@ class PlayerData {
     void setSortInventory(boolean sortInventory) {
         this.isDirty = true;
         this.sortInventory = sortInventory;
-    }
-
-    void incrementManualDeposits() {
-        this.manualDepositsThisSession++;
-    }
-
-    int getManualDeposits() {
-        return this.manualDepositsThisSession;
-    }
-
-    boolean isGotQuickDepositInfo() {
-        return gotQuickDepositInfo;
-    }
-
-    void setGotQuickDepositInfo(boolean newValue) {
-        this.gotQuickDepositInfo = newValue;
     }
 
     void saveChanges() {
@@ -168,7 +116,6 @@ class PlayerData {
             config.set("Received Messages.Personal Inventory", this.gotInventorySortInfo);
             config.set("Received Messages.Chest Inventory", this.gotChestSortInfo);
             config.set("Received Messages.Restacker", this.gotRestackInfo);
-            config.set("Received Messages.Deposit All", this.gotDepositAllInfo);
             File playerFile = new File(DataStore.playerDataFolderPath + File.separator + this.playerID.toString());
             config.save(playerFile);
         } catch (Exception e) {
@@ -199,7 +146,6 @@ class PlayerData {
                     this.gotChestSortInfo = config.getBoolean("Received Messages.Chest Inventory", false);
                     this.gotInventorySortInfo = config.getBoolean("Received Messages.Personal Inventory", false);
                     this.gotRestackInfo = config.getBoolean("Received Messages.Restacker", false);
-                    this.gotDepositAllInfo = config.getBoolean("Received Messages.Deposit All", false);
                 }
 
                 //if there's any problem with the file's content, retry up to 5 times with 5 milliseconds between
@@ -223,15 +169,6 @@ class PlayerData {
                 AutomaticInventory.logger.severe("Failed to load data for " + playerID + " " + errors.toString());
             }
         }
-    }
-
-    boolean isGotDepositAllInfo() {
-        return this.gotDepositAllInfo;
-    }
-
-    public void setGotDepositAllInfo(boolean status) {
-        this.gotDepositAllInfo = status;
-        this.isDirty = true;
     }
 
     private class DataSaver implements Runnable {
