@@ -1,0 +1,10 @@
+"Auto Refill":
+  "Excluded Items":
+    - "AIR"
+    - "POTION"
+"Auto Deposit":
+  "Excluded Items":
+    - "AIR"
+    - "ARROW"
+    - "SPECTRAL_ARROW"
+    - "TIPPED_ARROW"

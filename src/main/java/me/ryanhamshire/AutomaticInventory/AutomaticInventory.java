@@ -148,47 +148,21 @@ public class AutomaticInventory extends JavaPlugin {
 
         //read configuration settings (note defaults)
         this.getDataFolder().mkdirs();
+        saveDefaultConfig();
+
         File configFile = new File(this.getDataFolder().getPath() + File.separatorChar + "config.yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-        FileConfiguration outConfig = new YamlConfiguration();
+        FileConfiguration config = getConfig();
 
         List<String> noAutoRefillIDs_string = config.getStringList("Auto Refill.Excluded Items");
-        if (noAutoRefillIDs_string.size() == 0) {
-            noAutoRefillIDs_string.add("AIR");
-            noAutoRefillIDs_string.add("373");
-        }
 
         for (String idString : noAutoRefillIDs_string) {
-            try {
-                this.config_noAutoRefillIDs.add(Material.valueOf(idString.toUpperCase()));
-            } catch (Exception e) {
-            }
+            this.config_noAutoRefillIDs.add(Material.valueOf(idString.toUpperCase()));
         }
-
-        outConfig.set("Auto Refill.Excluded Items", noAutoRefillIDs_string);
 
         List<String> noAutoDepositIDs_string = config.getStringList("Auto Deposit.Excluded Items");
-        if (noAutoDepositIDs_string.size() == 0) {
-            noAutoDepositIDs_string.add("0");
-            noAutoDepositIDs_string.add("262");
-            noAutoDepositIDs_string.add("439");
-            noAutoDepositIDs_string.add("440");
-        }
 
         for (String idString : noAutoDepositIDs_string) {
-            try {
-                this.config_noAutoDepositIDs.add(Material.valueOf(idString.toUpperCase()));
-            } catch (Exception e) {
-            }
-        }
-
-        outConfig.set("Auto Deposit.Excluded Items", noAutoDepositIDs_string);
-
-        try {
-            outConfig.save(configFile);
-        } catch (IOException e) {
-            logger.info("Encountered an issue while writing to the config file.");
-            e.printStackTrace();
+            this.config_noAutoDepositIDs.add(Material.valueOf(idString.toUpperCase()));
         }
 
         //register for events
@@ -197,9 +171,7 @@ public class AutomaticInventory extends JavaPlugin {
         AIEventHandler aIEventHandler = new AIEventHandler();
         pluginManager.registerEvents(aIEventHandler, this);
 
-        @SuppressWarnings("unchecked")
-        Collection<Player> players = (Collection<Player>) this.getServer().getOnlinePlayers();
-        for (Player player : players) {
+        for (Player player : getServer().getOnlinePlayers()) {
             PlayerData.Preload(player);
         }
     }
