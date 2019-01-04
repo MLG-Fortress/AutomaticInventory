@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class AutomaticInventory extends JavaPlugin {
     //for convenience, a reference to the instance of this plugin
@@ -45,11 +46,11 @@ public class AutomaticInventory extends JavaPlugin {
     private static void sendMessage(Player player, ChatColor color, String... message) {
         if (message == null || message.length == 0) return;
 
-        String[] messages = (String[]) Arrays.stream(message).map(str -> color + str).toArray();
+        List<String> messages = Arrays.stream(message).map(str -> color + str).collect(Collectors.toList());
 
         if (player == null) {
             for (String msg : messages) logger.info(msg);
-        } else player.sendMessage(messages);
+        } else player.sendMessage(messages.toArray(new String[message.length]));
     }
 
     static DepositRecord depositMatching(PlayerInventory source, Inventory destination, boolean depositHotbar) {
