@@ -28,9 +28,9 @@ public class AutomaticInventory extends JavaPlugin {
 
     //for logging to the console and log file
     public static Logger logger;
+    Set<Material> config_noAutoRefillIDs = new HashSet<>();
     //this handles data storage, like player and region data
     private DataStore dataStore;
-    Set<Material> config_noAutoRefillIDs = new HashSet<>();
     private Set<Material> config_noAutoDepositIDs = new HashSet<>();
 
 

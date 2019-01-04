@@ -3,46 +3,46 @@ main: me.ryanhamshire.AutomaticInventory.AutomaticInventory
 version: 2.7.1
 api-version: 1.13
 commands:
-   debugai:
-      description: Debug command for AutomaticInventory.
-      usage: /debugai
-      permission: automaticinventory.debug
-   autosort:
-      description: Toggles auto-sorting options.
-      usage: /AutoSort
-   depositall:
-      description: Deposits your non-hotbar inventory into any nearby chests containing matching items.
-      usage: /DepositAll
-      aliases: [da, dumpitems, dumploot, depositloot]
-      permission: automaticinventory.depositall
+  debugai:
+    description: Debug command for AutomaticInventory.
+    usage: /debugai
+    permission: automaticinventory.debug
+  autosort:
+    description: Toggles auto-sorting options.
+    usage: /AutoSort
+  depositall:
+    description: Deposits your non-hotbar inventory into any nearby chests containing matching items.
+    usage: /DepositAll
+    aliases: [da, dumpitems, dumploot, depositloot]
+    permission: automaticinventory.depositall
 permissions:
-    automaticinventory.admin.*:
-        description: Grants all administrative privileges.
-        children:
-            automaticinventory.debugai: true
-    automaticinventory.user.*:
-        description: Grants all user privileges.
-        children:
-            automaticinventory.sortinventory: true
-            automaticinventory.sortchests: true
-            automaticinventory.refillstacks: true
-            automaticinventory.quickdeposit: true
-            automaticinventory.depositall: true
-    automaticinventory.debugai:
-        description: Grants permission to use /DebugAI.
-        default: op
-    automaticinventory.sortinventory:
-        description: Grants permission to auto-sort personal inventory.
-        default: true
-    automaticinventory.sortchests:
-        description: Grants permission to auto-sort chest content.
-        default: true
-    automaticinventory.refillstacks:
-        description: Grants permission to auto-refill depleted hotbar stacks.
-        default: true
-    automaticinventory.quickdeposit:
-        description: Grants permission to auto-deposit matching items into a chest with shift-right-click.
-        default: true
-    automaticinventory.depositall:
-        description: Grants permission to use /DepositAll.
-        default: true
+  automaticinventory.admin.*:
+    description: Grants all administrative privileges.
+    children:
+      automaticinventory.debugai: true
+  automaticinventory.user.*:
+    description: Grants all user privileges.
+    children:
+      automaticinventory.sortinventory: true
+      automaticinventory.sortchests: true
+      automaticinventory.refillstacks: true
+      automaticinventory.quickdeposit: true
+      automaticinventory.depositall: true
+  automaticinventory.debugai:
+    description: Grants permission to use /DebugAI.
+    default: op
+  automaticinventory.sortinventory:
+    description: Grants permission to auto-sort personal inventory.
+    default: true
+  automaticinventory.sortchests:
+    description: Grants permission to auto-sort chest content.
+    default: true
+  automaticinventory.refillstacks:
+    description: Grants permission to auto-refill depleted hotbar stacks.
+    default: true
+  automaticinventory.quickdeposit:
+    description: Grants permission to auto-deposit matching items into a chest with shift-right-click.
+    default: true
+  automaticinventory.depositall:
+    description: Grants permission to use /DepositAll.
+    default: true

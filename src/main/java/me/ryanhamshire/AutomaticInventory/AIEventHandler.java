@@ -60,7 +60,7 @@ class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused") //Suppressed due to event use
+
     public void onToolBreak(PlayerItemBreakEvent event) {
         Player player = event.getPlayer();
         PlayerInventory inventory = player.getInventory();
@@ -70,14 +70,14 @@ class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused") //Suppressed due to event use
+
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         tryRefillStackInHand(player, event.getHand(), true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused") //Suppressed due to event use
+
     public void onConsumeItem(PlayerItemConsumeEvent event) {
         Player player = event.getPlayer();
         PlayerInventory inventory = player.getInventory();
@@ -86,7 +86,7 @@ class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused") //Suppressed due to event use
+
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         ProjectileSource source = event.getEntity().getShooter();
         if (!(source instanceof Player)) return;
@@ -121,7 +121,7 @@ class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused") //Suppressed due to event use
+
     public void onBlockDamage(BlockDamageEvent event) {
         Player player = event.getPlayer();
         if (!player.isSneaking()) return;
@@ -165,7 +165,7 @@ class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused") //Suppressed due to event use
+
     public void onInventoryOpen(InventoryOpenEvent event) {
         Inventory bottomInventory = event.getView().getBottomInventory();
         if (bottomInventory == null) return;
@@ -188,7 +188,7 @@ class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused") //Suppressed due to event use
+
     public void onInventoryClose(InventoryCloseEvent event) {
         Inventory bottomInventory = event.getView().getBottomInventory();
         if (bottomInventory == null) return;
@@ -204,7 +204,7 @@ class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused") //Suppressed due to event use
+
     public void onPickupItem(EntityPickupItemEvent event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof Player)) return;
@@ -223,16 +223,12 @@ class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused")
-        //Suppressed due to event use
     void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         PlayerData.Preload(player);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    @SuppressWarnings("unused")
-        //Suppressed due to event use
     void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         PlayerData.FromPlayer(player).saveChanges();

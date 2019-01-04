@@ -1,14 +1,14 @@
 language: java
 script: gradle build
 jdk:
-- oraclejdk8
+  - oraclejdk8
 install:
-- echo Do Nothing Here!
+  - echo Do Nothing Here!
 branches:
   except:
-  - untagged*
+    - untagged*
 before_deploy:
-- gem install octokit -v 4.3.0
+  - gem install octokit -v 4.3.0
 deploy:
   provider: releases
   api_key:
@@ -21,10 +21,10 @@ deploy:
 notifications:
   email: false
 after_success:
-- wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
-- chmod +x send.sh
-- "./send.sh success $WEBHOOK_URL"
+  - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - "./send.sh success $WEBHOOK_URL"
 after_failure:
-- wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
-- chmod +x send.sh
-- "./send.sh failure $WEBHOOK_URL"
+  - wget https://raw.githubusercontent.com/k3rn31p4nic/travis-ci-discord-webhook/master/send.sh
+  - chmod +x send.sh
+  - "./send.sh failure $WEBHOOK_URL"
