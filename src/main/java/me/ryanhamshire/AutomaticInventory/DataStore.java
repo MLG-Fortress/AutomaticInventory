@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class DataStore {
+class DataStore {
     private final static String dataLayerFolderPath = "plugins" + File.separator + "AutomaticInventory";
     final static String playerDataFolderPath = dataLayerFolderPath + File.separator + "PlayerData";
     private final static String messagesFilePath = dataLayerFolderPath + File.separator + "messages.yml";
@@ -20,7 +20,7 @@ public class DataStore {
         //ensure data folders exist
         File playerDataFolder = new File(playerDataFolderPath);
         if (!playerDataFolder.exists()) {
-            playerDataFolder.mkdirs();
+            if (!playerDataFolder.mkdirs()) return;
         }
 
         this.loadMessages();
@@ -67,7 +67,7 @@ public class DataStore {
         }
     }
 
-    public synchronized String getMessage(Messages messageID, String... args) {
+    synchronized String getMessage(Messages messageID, String... args) {
         String message = messages.get(messageID);
 
         for (int i = 0; i < args.length; i++) {

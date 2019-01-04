@@ -15,7 +15,7 @@ import org.bukkit.util.Vector;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class FindChestsThread extends Thread {
+class FindChestsThread extends Thread {
     private World world;
     private ChunkSnapshot[][] snapshots;
     private int minY;
@@ -28,7 +28,7 @@ public class FindChestsThread extends Thread {
 
     private boolean[][][] seen;
 
-    public FindChestsThread(World world, ChunkSnapshot[][] snapshots, int minY, int maxY, int startX, int startY, int startZ, Player player) {
+    FindChestsThread(World world, ChunkSnapshot[][] snapshots, int minY, int maxY, int startX, int startY, int startZ, Player player) {
         this.world = world;
         this.snapshots = snapshots;
         this.minY = minY;
@@ -44,8 +44,8 @@ public class FindChestsThread extends Thread {
 
     @Override
     public void run() {
-        Queue<Location> chestLocations = new ConcurrentLinkedQueue<Location>();
-        Queue<Vector> leftToVisit = new ConcurrentLinkedQueue<Vector>();
+        Queue<Location> chestLocations = new ConcurrentLinkedQueue<>();
+        Queue<Vector> leftToVisit = new ConcurrentLinkedQueue<>();
         Vector start = new Vector(this.startX, this.startY, this.startZ);
         leftToVisit.add(start);
         this.markSeen(start);
@@ -53,6 +53,7 @@ public class FindChestsThread extends Thread {
             Vector current = leftToVisit.remove();
 
             Material type = this.getType(current);
+            if (type == null) continue;
             if (type == Material.CHEST || type == Material.TRAPPED_CHEST || type == Material.ENDER_CHEST || type.name().contains("SHULKER")) {
                 Material overType = this.getType(new Vector(current.getBlockX(), current.getBlockY() + 1, current.getBlockZ()));
                 if (!AutomaticInventory.preventsChestOpen(overType)) {
@@ -154,7 +155,7 @@ public class FindChestsThread extends Thread {
         public void run() {
             Location chestLocation = this.remainingChestLocations.poll();
             if (chestLocation == null) {
-                AutomaticInventory.sendMessage(this.player, TextMode.Success, Messages.SuccessfulDepositAll2, String.valueOf(this.runningDepositRecord.totalItems));
+                AutomaticInventory.sendMessage(this.player, Messages.SuccessfulDepositAll2, String.valueOf(this.runningDepositRecord.totalItems));
             } else {
                 Block block = chestLocation.getBlock();
                 PlayerInteractEvent fakeEvent = AutomaticInventory.instance.new FakePlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, player.getInventory().getItemInMainHand(), block, BlockFace.UP);

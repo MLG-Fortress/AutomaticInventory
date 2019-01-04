@@ -54,8 +54,8 @@ class PlayerData {
         return usedQuickDeposit;
     }
 
-    void setUsedQuickDeposit(boolean usedQuickDeposit) {
-        this.usedQuickDeposit = usedQuickDeposit;
+    void setUsedQuickDeposit() {
+        this.usedQuickDeposit = true;
         this.isDirty = true;
     }
 
@@ -92,6 +92,7 @@ class PlayerData {
             try {
                 this.loadingThread.join();
             } catch (InterruptedException e) {
+                e.printStackTrace();
             }
             this.loadingThread = null;
         }
@@ -102,6 +103,7 @@ class PlayerData {
             try {
                 this.savingThread.join();
             } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -158,6 +160,7 @@ class PlayerData {
                 try {
                     if (needRetry) Thread.sleep(5);
                 } catch (InterruptedException exception) {
+                    exception.printStackTrace();
                 }
 
             } while (needRetry && retriesRemaining >= 0);

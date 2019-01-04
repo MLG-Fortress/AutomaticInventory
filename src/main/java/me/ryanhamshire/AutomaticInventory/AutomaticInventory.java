@@ -8,18 +8,17 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -30,33 +29,27 @@ public class AutomaticInventory extends JavaPlugin {
     //for logging to the console and log file
     public static Logger logger;
     //this handles data storage, like player and region data
-    public DataStore dataStore;
+    private DataStore dataStore;
     Set<Material> config_noAutoRefillIDs = new HashSet<>();
-    Set<Material> config_noAutoDepositIDs = new HashSet<>();
+    private Set<Material> config_noAutoDepositIDs = new HashSet<>();
 
-    static void sendMessage(Player player, ChatColor color, Messages messageID, String... args) {
-        sendMessage(player, color, messageID, 0, args);
+
+    static void sendMessage(Player player, Messages message, String... args) {
+        sendMessage(player, TextMode.Success, instance.dataStore.getMessage(message, args));
     }
 
-    static void sendMessage(Player player, ChatColor color, Messages messageID, long delayInTicks, String... args) {
-        String message = AutomaticInventory.instance.dataStore.getMessage(messageID, args);
-        sendMessage(player, color, message, delayInTicks);
+    static void sendMessage(Player player, ChatColor color, Messages message) {
+        sendMessage(player, color, instance.dataStore.getMessage(message));
     }
 
-    static void sendMessage(Player player, ChatColor color, String message) {
-        if (message == null || message.length() == 0) return;
+    private static void sendMessage(Player player, ChatColor color, String... message) {
+        if (message == null || message.length == 0) return;
 
-        if (player == null) logger.info(color + message);
-        else player.sendMessage(color + message);
-    }
+        String[] messages = (String[]) Arrays.stream(message).map(str -> color + str).toArray();
 
-    static void sendMessage(Player player, ChatColor color, String message, long delayInTicks) {
-        SendPlayerMessageTask task = new SendPlayerMessageTask(player, color, message);
-        if (delayInTicks > 0) {
-            AutomaticInventory.instance.getServer().getScheduler().runTaskLater(AutomaticInventory.instance, task, delayInTicks);
-        } else {
-            task.run();
-        }
+        if (player == null) {
+            for (String msg : messages) logger.info(msg);
+        } else player.sendMessage(messages);
     }
 
     static DepositRecord depositMatching(PlayerInventory source, Inventory destination, boolean depositHotbar) {
@@ -108,7 +101,8 @@ public class AutomaticInventory extends JavaPlugin {
     private static String getSignature(ItemStack stack) {
         String signature = stack.getType().name();
         if (stack.getMaxStackSize() > 1) {
-            signature += "." + stack.getDurability();
+            ItemMeta meta = stack.getItemMeta();
+            if (meta instanceof Damageable) signature += "." + ((Damageable) meta).getDamage();
         }
         return signature;
     }
@@ -124,10 +118,8 @@ public class AutomaticInventory extends JavaPlugin {
         dataStore = new DataStore();
 
         //read configuration settings (note defaults)
-        this.getDataFolder().mkdirs();
         saveDefaultConfig();
 
-        File configFile = new File(this.getDataFolder().getPath() + File.separatorChar + "config.yml");
         FileConfiguration config = getConfig();
 
         List<String> noAutoRefillIDs_string = config.getStringList("Auto Refill.Excluded Items");
@@ -228,8 +220,8 @@ public class AutomaticInventory extends JavaPlugin {
         logger.info("AutomaticInventory disabled.");
     }
 
-    public class FakePlayerInteractEvent extends PlayerInteractEvent {
-        public FakePlayerInteractEvent(Player player, Action rightClickBlock, ItemStack itemInHand, Block clickedBlock, BlockFace blockFace) {
+    class FakePlayerInteractEvent extends PlayerInteractEvent {
+        FakePlayerInteractEvent(Player player, Action rightClickBlock, ItemStack itemInHand, Block clickedBlock, BlockFace blockFace) {
             super(player, rightClickBlock, itemInHand, clickedBlock, blockFace);
         }
     }

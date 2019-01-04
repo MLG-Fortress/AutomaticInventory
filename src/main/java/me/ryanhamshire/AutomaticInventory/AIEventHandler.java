@@ -3,9 +3,9 @@
 package me.ryanhamshire.AutomaticInventory;
 
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.StorageMinecart;
@@ -15,19 +15,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
-public class AIEventHandler implements Listener {
+class AIEventHandler implements Listener {
     static void sortPlayerIfEnabled(Inventory inventory) {
         new InventorySorter(inventory, 9).run();
     }
@@ -43,7 +45,7 @@ public class AIEventHandler implements Listener {
         if (name != null && name.contains("*")) return false;
 
         InventoryHolder holder = inventory.getHolder();
-        return holder != null && (holder instanceof Chest || holder instanceof DoubleChest || holder instanceof StorageMinecart || holder instanceof ShulkerBox);
+        return holder instanceof Chest || holder instanceof DoubleChest || holder instanceof StorageMinecart || holder instanceof ShulkerBox;
     }
 
     private EquipmentSlot getSlotWithItemStack(PlayerInventory inventory, ItemStack brokenItem) {
@@ -58,6 +60,7 @@ public class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused") //Suppressed due to event use
     public void onToolBreak(PlayerItemBreakEvent event) {
         Player player = event.getPlayer();
         PlayerInventory inventory = player.getInventory();
@@ -67,12 +70,14 @@ public class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused") //Suppressed due to event use
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         tryRefillStackInHand(player, event.getHand(), true);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused") //Suppressed due to event use
     public void onConsumeItem(PlayerItemConsumeEvent event) {
         Player player = event.getPlayer();
         PlayerInventory inventory = player.getInventory();
@@ -81,15 +86,15 @@ public class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused") //Suppressed due to event use
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
         ProjectileSource source = event.getEntity().getShooter();
-        if (source == null || !(source instanceof Player)) return;
+        if (!(source instanceof Player)) return;
 
         Player player = (Player) source;
         tryRefillStackInHand(player, EquipmentSlot.HAND, false);
     }
 
-    @SuppressWarnings("deprecation")
     private void tryRefillStackInHand(Player player, EquipmentSlot slot, boolean dataValueMatters) {
         if (slot == null) return;
 
@@ -110,12 +115,13 @@ public class AIEventHandler implements Listener {
             PlayerInventory inventory = player.getInventory();
             AutomaticInventory.instance.getServer().getScheduler().scheduleSyncDelayedTask(
                     AutomaticInventory.instance,
-                    new AutoRefillHotBarTask(player, inventory, slotIndex, stack.clone(), dataValueMatters),
+                    new AutoRefillHotBarTask(inventory, slotIndex, stack.clone()),
                     2L);
         }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused") //Suppressed due to event use
     public void onBlockDamage(BlockDamageEvent event) {
         Player player = event.getPlayer();
         if (!player.isSneaking()) return;
@@ -124,7 +130,7 @@ public class AIEventHandler implements Listener {
         if (clickedBlock == null) return;
         if (!(clickedBlock.getState() instanceof Container)) return;
 
-        PlayerInteractEvent fakeEvent = AutomaticInventory.instance.new FakePlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, player.getItemInHand(), clickedBlock, BlockFace.EAST);
+        PlayerInteractEvent fakeEvent = AutomaticInventory.instance.new FakePlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, player.getInventory().getItemInMainHand(), clickedBlock, BlockFace.EAST);
         Bukkit.getServer().getPluginManager().callEvent(fakeEvent);
         if (fakeEvent.isCancelled()) return;
 
@@ -148,17 +154,18 @@ public class AIEventHandler implements Listener {
         } else if (deposits.totalItems == 0) {
             AutomaticInventory.sendMessage(player, TextMode.Info, Messages.FailedDepositNoMatch);
         } else {
-            AutomaticInventory.sendMessage(player, TextMode.Success, Messages.SuccessfulDeposit2, String.valueOf(deposits.totalItems));
+            AutomaticInventory.sendMessage(player, Messages.SuccessfulDeposit2, String.valueOf(deposits.totalItems));
 
             //make a note that quick deposit was used so that player will not be bothered with advertisement messages again.
             PlayerData playerData = PlayerData.FromPlayer(player);
             if (!playerData.isUsedQuickDeposit()) {
-                playerData.setUsedQuickDeposit(true);
+                playerData.setUsedQuickDeposit();
             }
         }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused") //Suppressed due to event use
     public void onInventoryOpen(InventoryOpenEvent event) {
         Inventory bottomInventory = event.getView().getBottomInventory();
         if (bottomInventory == null) return;
@@ -181,6 +188,7 @@ public class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused") //Suppressed due to event use
     public void onInventoryClose(InventoryCloseEvent event) {
         Inventory bottomInventory = event.getView().getBottomInventory();
         if (bottomInventory == null) return;
@@ -196,8 +204,12 @@ public class AIEventHandler implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onPickupItem(PlayerPickupItemEvent event) {
-        Player player = event.getPlayer();
+    @SuppressWarnings("unused") //Suppressed due to event use
+    public void onPickupItem(EntityPickupItemEvent event) {
+        Entity entity = event.getEntity();
+        if (!(entity instanceof Player)) return;
+        Player player = (Player) entity;
+
         PlayerData playerData = PlayerData.FromPlayer(player);
         if (playerData.firstEmptySlot >= 0) return;
 
@@ -205,36 +217,36 @@ public class AIEventHandler implements Listener {
         int firstEmpty = inventory.firstEmpty();
         if (firstEmpty < 9) return;
         playerData.firstEmptySlot = firstEmpty;
-        PickupSortTask task = new PickupSortTask(player, playerData, inventory);
+        PickupSortTask task = new PickupSortTask(playerData, inventory);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(AutomaticInventory.instance, task, 100L);
 
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused")
+        //Suppressed due to event use
     void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         PlayerData.Preload(player);
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @SuppressWarnings("unused")
+        //Suppressed due to event use
     void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         PlayerData.FromPlayer(player).saveChanges();
     }
 
     class AutoRefillHotBarTask implements Runnable {
-        private Player player;
         private PlayerInventory targetInventory;
         private int slotToRefill;
         private ItemStack stackToReplace;
-        private boolean dataValueMatters;
 
-        public AutoRefillHotBarTask(Player player, PlayerInventory targetInventory, int slotToRefill, ItemStack stackToReplace, boolean dataValueMatters) {
-            this.player = player;
+        AutoRefillHotBarTask(PlayerInventory targetInventory, int slotToRefill, ItemStack stackToReplace) {
             this.targetInventory = targetInventory;
             this.slotToRefill = slotToRefill;
             this.stackToReplace = stackToReplace;
-            this.dataValueMatters = dataValueMatters;
         }
 
         @Override
@@ -269,12 +281,10 @@ public class AIEventHandler implements Listener {
 }
 
 class PickupSortTask implements Runnable {
-    private Player player;
     private PlayerData playerData;
     private Inventory playerInventory;
 
-    PickupSortTask(Player player, PlayerData playerData, Inventory playerInventory) {
-        this.player = player;
+    PickupSortTask(PlayerData playerData, Inventory playerInventory) {
         this.playerData = playerData;
         this.playerInventory = playerInventory;
     }
@@ -303,7 +313,7 @@ class InventorySorter implements Runnable {
 
     @Override
     public void run() {
-        ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+        ArrayList<ItemStack> stacks = new ArrayList<>();
         ItemStack[] contents = this.inventory.getContents();
         int inventorySize = contents.length;
         if (this.inventory.getType() == InventoryType.PLAYER) inventorySize = Math.min(contents.length, 36);
@@ -314,7 +324,7 @@ class InventorySorter implements Runnable {
             }
         }
 
-        Collections.sort(stacks, new StackComparator());
+        stacks.sort(new StackComparator());
         for (int i = 1; i < stacks.size(); i++) {
             ItemStack prevStack = stacks.get(i - 1);
             ItemStack thisStack = stacks.get(i);
@@ -342,19 +352,22 @@ class InventorySorter implements Runnable {
     }
 
     private class StackComparator implements Comparator<ItemStack> {
-        @SuppressWarnings("deprecation")
         @Override
         public int compare(ItemStack a, ItemStack b) {
-            int result = new Integer(b.getMaxStackSize()).compareTo(a.getMaxStackSize());
+            int result = Integer.compare(b.getMaxStackSize(), a.getMaxStackSize());
             if (result != 0) return result;
 
             result = b.getType().compareTo(a.getType());
             if (result != 0) return result;
 
-            result = new Byte(b.getData().getData()).compareTo(a.getData().getData());
+            ItemMeta metaA = a.getItemMeta();
+            ItemMeta metaB = b.getItemMeta();
+
+            result = Integer.compare(metaA instanceof Damageable ? ((Damageable) metaA).getDamage() : 0,
+                    metaB instanceof Damageable ? ((Damageable) metaB).getDamage() : 0);
             if (result != 0) return result;
 
-            result = new Integer(b.getAmount()).compareTo(a.getAmount());
+            result = Integer.compare(b.getAmount(), a.getAmount());
             return result;
         }
     }
