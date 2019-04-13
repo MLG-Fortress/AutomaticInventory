@@ -15,7 +15,7 @@ deploy:
     secure: Y+BVPRg1uI5QR9oUWzZZe+mCn9HX+w3tg3aqCHVd9WIJXZSAvdpkBc5GAuMT+AosZpyJbVbpATzY+qslpU2W91UiNaU6RfkLlWz3tjCPRIivjsTQX1Eknx6zZQKpm/LzudBPWzaYIbYK556R+kdqwHQVJDiXpNVlSQwuq+0J082k5iKtY4hQP1e9iG/l450AY5CgpjxLRdvjDQqS6S44cuPzdUPYgt+VYCp6lHcdRqvm7kGBejGtktyNuS4bY0A/1H1mkehMW9uOjfW9bUbZgAAbtVY6rmu6Fa7b4omQy0zrWJFelkUGw+mly+H73AmIho2QxzW1U+D29nOZUwe8+QuTlAWuR/POUuPNE95w1CxQaSaouzd8AiV8IppQfBDcmxAE8qVBQQln8COPiyQv6cre44O/P7uVia82Q2zw+pJffIu5YtFwB1X0ciH4aAbBBfFaHG6C27wx3tdxhGa3vYLiYcmIQNZmGRBd/J9jg9RFA9cg6GdGINK2x9r/xiLU5Zk2+msaIzH6aicO+65WpyU0W3aOxIyEHrlf2HouW4RXoGMrED/6D7OmucLw3CRl2gr9mevAHpRL+3Rod79n9FaInAoWGgF5/dDzipRQe5okYmHafuK31l3OYaRJIlSqpkyv5LInz67lyaZal6cK2YYy1KhVO8nknqhlC/MKrXA=
   file: build/libs/*
   on:
-    repo: AllTheCode/AutomaticInventory
+    repo: HelloWorldMinecraft/AutomaticInventory
   file_glob: true
   skip_cleanup: true
 notifications:
