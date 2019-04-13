@@ -23,8 +23,8 @@ configurations {
     compile.extendsFrom(bundle)
 }
 
-version = "2"
-if (project.hasProperty("Release")) version += '-' + LocalDateTime.now(ZoneId.of("America/Chicago")).format(DateTimeFormatter.ofPattern("yyMMddHHmm"))
+version = "3.0.0"
+if (!project.hasProperty("Release")) version += '-' + LocalDateTime.now(ZoneId.of("America/Chicago")).format(DateTimeFormatter.ofPattern("yyMMddHHmm"))
 
 
 repositories {
@@ -37,6 +37,11 @@ dependencies {
     compile "org.spigotmc:spigot-api:1.13.1-R0.1-SNAPSHOT"
     compile "com.google.code.findbugs:jsr305:3.0.0"
 }
+
+processResources {
+    expand project.properties
+}
+
 
 jar {
     baseName = "Generated-${project.name}"
