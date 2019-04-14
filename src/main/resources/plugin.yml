@@ -1,7 +1,8 @@
 name: AutomaticInventory
 main: me.ryanhamshire.AutomaticInventory.AutomaticInventory
 version: ${project.version}
-api-version: 1.13
+api-version: "1.13"
+authors: [HelloWorld]
 commands:
   debugai:
     description: Debug command for AutomaticInventory.
