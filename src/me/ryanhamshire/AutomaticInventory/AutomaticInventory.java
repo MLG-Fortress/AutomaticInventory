@@ -424,54 +424,6 @@ public class AutomaticInventory extends JavaPlugin
      */
     static boolean preventsChestOpen(Material aboveBlockID)
     {
-
-        // Special cases not covered by transparency check
-        switch (aboveBlockID) {
-            // Chests don't prevent other chests from opening
-            case CHEST:
-            case TRAPPED_CHEST:
-            case ENDER_CHEST:
-            // "Non-full" blocks
-            case HOPPER:
-            case SANDSTONE_SLAB:
-            case SPRUCE_SLAB:
-            case STONE_BRICK_SLAB:
-            case STONE_SLAB:
-            case ACACIA_SLAB:
-            case BIRCH_SLAB:
-            case BRICK_SLAB:
-            case COBBLESTONE_SLAB:
-            case DARK_OAK_SLAB:
-            case DARK_PRISMARINE_SLAB:
-            case JUNGLE_SLAB:
-            case NETHER_BRICK_SLAB:
-            case OAK_SLAB:
-            case PETRIFIED_OAK_SLAB:
-            case PRISMARINE_BRICK_SLAB:
-            case PRISMARINE_SLAB:
-            case PURPUR_SLAB:
-            case QUARTZ_SLAB:
-            case RED_SANDSTONE_SLAB:
-            case SANDSTONE_STAIRS:
-            case SPRUCE_STAIRS:
-            case STONE_BRICK_STAIRS:
-            case ACACIA_STAIRS:
-            case BIRCH_STAIRS:
-            case BRICK_STAIRS:
-            case COBBLESTONE_STAIRS:
-            case DARK_OAK_STAIRS:
-            case DARK_PRISMARINE_STAIRS:
-            case JUNGLE_STAIRS:
-            case NETHER_BRICK_STAIRS:
-            case OAK_STAIRS:
-            case PRISMARINE_BRICK_STAIRS:
-            case PRISMARINE_STAIRS:
-            case PURPUR_STAIRS:
-            case QUARTZ_STAIRS:
-            case RED_SANDSTONE_STAIRS:
-                return false;
-        }
-
-        return aboveBlockID.isSolid();
+        return aboveBlockID.isOccluding();
     }
 }
