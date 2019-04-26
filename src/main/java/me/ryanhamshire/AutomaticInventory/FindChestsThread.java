@@ -129,11 +129,9 @@ class FindChestsThread extends Thread {
             case CHEST:
             case TRAPPED_CHEST:
             case HOPPER:
-            case SIGN:
-            case WALL_SIGN:
                 return true;
             default:
-                return false;
+                return material.name().contains("SIGN");
         }
     }
 
