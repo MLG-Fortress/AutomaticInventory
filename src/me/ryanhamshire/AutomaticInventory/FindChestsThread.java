@@ -4,6 +4,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -26,9 +27,9 @@ public class FindChestsThread extends Thread
     private int startZ;
     private Player player;
     private ChunkSnapshot smallestChunk;
-    
+
     private boolean [][][] seen;
-    
+
     public FindChestsThread(World world, ChunkSnapshot[][] snapshots, int minY, int maxY, int startX, int startY, int startZ, Player player)
     {
         this.world = world;
@@ -43,7 +44,7 @@ public class FindChestsThread extends Thread
         this.player = player;
         this.seen =  new boolean[48][this.maxY - this.minY + 1][48];
     }
-    
+
     @Override
     public void run()
     {
@@ -76,7 +77,7 @@ public class FindChestsThread extends Thread
                     new Vector(current.getBlockX(), current.getBlockY(), current.getBlockZ() + 1),
                     new Vector(current.getBlockX(), current.getBlockY(), current.getBlockZ() - 1),
                 };
-                
+
                 for(Vector adjacent : adjacents)
                 {
                     if(!this.alreadySeen(adjacent))
@@ -87,11 +88,11 @@ public class FindChestsThread extends Thread
                 }
             }
         }
-        
+
         QuickDepositChain chain = new QuickDepositChain(chestLocations, new DepositRecord(), player, true);
         Bukkit.getScheduler().runTaskLater(AutomaticInventory.instance, chain, 1L);
     }
-    
+
     private Location makeLocation(Vector location)
     {
         return new Location(
@@ -158,21 +159,31 @@ public class FindChestsThread extends Thread
             case CHEST:
             case TRAPPED_CHEST:
             case HOPPER:
-            case SIGN:
-            case WALL_SIGN:
+			case ACACIA_SIGN:
+			case ACACIA_WALL_SIGN:
+			case BIRCH_SIGN:
+			case BIRCH_WALL_SIGN:
+			case DARK_OAK_SIGN:
+			case DARK_OAK_WALL_SIGN:
+			case JUNGLE_SIGN:
+			case JUNGLE_WALL_SIGN:
+			case OAK_SIGN:
+			case OAK_WALL_SIGN:
+			case SPRUCE_SIGN:
+			case SPRUCE_WALL_SIGN:
                 return true;
             default:
                 return false;
         }
     }
-    
+
     class QuickDepositChain implements Runnable
     {
         private Queue<Location> remainingChestLocations;
         private DepositRecord runningDepositRecord;
         private Player player;
         private boolean respectExclusions;
-        
+
         QuickDepositChain(Queue<Location> remainingChestLocations, DepositRecord runningDepositRecord, Player player, boolean respectExclusions)
         {
             super();
@@ -208,17 +219,18 @@ public class FindChestsThread extends Thread
                     {
                         InventoryHolder chest = (InventoryHolder)state;
                         Inventory chestInventory = chest.getInventory();
-                        if(!this.respectExclusions || AIEventHandler.isSortableChestInventory(chestInventory))
+                        if(!this.respectExclusions || AIEventHandler.isSortableChestInventory(chestInventory,
+								state instanceof Nameable ? ((Nameable) state).getCustomName() : null))
                         {
                             PlayerInventory playerInventory = player.getInventory();
-                            
-                            DepositRecord deposits = AutomaticInventory.depositMatching(playerInventory, chestInventory, false);                    
-        
+
+                            DepositRecord deposits = AutomaticInventory.depositMatching(playerInventory, chestInventory, false);
+
                             this.runningDepositRecord.totalItems += deposits.totalItems;
                         }
                     }
                 }
-                
+
                 QuickDepositChain chain = new QuickDepositChain(this.remainingChestLocations, this.runningDepositRecord, this.player, this.respectExclusions);
                 Bukkit.getScheduler().runTaskLater(AutomaticInventory.instance, chain, 1L);
             }

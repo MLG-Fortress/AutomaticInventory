@@ -309,7 +309,7 @@ public class AIEventHandler implements Listener
 	    if(!player.isSneaking() && featureEnabled(Features.SortChests, player))
         {
 	        Inventory topInventory = event.getView().getTopInventory();
-            if(!isSortableChestInventory(topInventory)) return;
+            if(!isSortableChestInventory(topInventory, event.getView().getTitle())) return;
             
             InventorySorter sorter = new InventorySorter(topInventory, 0);
             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(AutomaticInventory.instance, sorter, 1L);
@@ -380,7 +380,7 @@ public class AIEventHandler implements Listener
         }
 	}
 	
-	static boolean isSortableChestInventory(Inventory inventory)
+	static boolean isSortableChestInventory(Inventory inventory, String name)
     {
         if(inventory == null) return false;
         
@@ -388,8 +388,7 @@ public class AIEventHandler implements Listener
         if(inventoryType != InventoryType.CHEST
                 && inventoryType != InventoryType.ENDER_CHEST
                 && inventoryType != InventoryType.SHULKER_BOX) return false;
-        
-        String name = inventory.getName();
+
         if(name != null && name.contains("*")) return false;
         
         InventoryHolder holder = inventory.getHolder();
