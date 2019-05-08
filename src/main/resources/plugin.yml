@@ -11,6 +11,7 @@ commands:
   autosort:
     description: Toggles auto-sorting options.
     usage: /AutoSort
+    permission: automaticinventory.sortchests
   depositall:
     description: Deposits your non-hotbar inventory into any nearby chests containing matching items.
     usage: /DepositAll
