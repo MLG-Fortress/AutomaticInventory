@@ -218,24 +218,24 @@ public class AIEventHandler implements Listener
             if(currentStack != null) return;
 
             ItemStack bestMatchStack = null;
-	    ItemStack bestShulkerStack = null;
+            ItemStack bestShulkerStack = null;
             int bestMatchSlot = -1;
-	    int bestMatchShulkerSlot = -1;
+            int bestMatchShulkerSlot = -1;
             int bestMatchStackSize = Integer.MAX_VALUE;
-	    boolean bestMatchShulker = false;
-	    ShulkerBox bestShulker = null;
+            boolean bestMatchShulker = false;
+            ShulkerBox bestShulker = null;
             for(int i = 0; i < 36; i++)
             {
                 ItemStack itemInSlot = this.targetInventory.getItem(i);
                 if(itemInSlot == null) continue;
-		
-		// check if item is a Shulker Box
+
+                // check if item is a Shulker Box
                 if(itemInSlot.getItemMeta() instanceof BlockStateMeta) {
                     BlockStateMeta im = (BlockStateMeta)itemInSlot.getItemMeta();
                     if(im.getBlockState() instanceof ShulkerBox) {
                         ShulkerBox shulker = (ShulkerBox) im.getBlockState();
 
-                        for(int j = 0; j < 27; j++) {
+                        for(int j = 0; j < shulker.getInventory().getSize(); j++) {
                             ItemStack itemInShulkerSlot = shulker.getInventory().getItem(j);
                             if(itemInShulkerSlot == null) continue;
                             if(itemsAreSimilar(itemInShulkerSlot, this.stackToReplace))
@@ -266,7 +266,7 @@ public class AIEventHandler implements Listener
                         bestMatchStack = itemInSlot;
                         bestMatchSlot = i;
                         bestMatchStackSize = stackSize;
-			bestMatchShulker = false;
+                        bestMatchShulker = false;
                     }
                     
                     if(bestMatchStackSize == 1) break;
@@ -295,7 +295,7 @@ public class AIEventHandler implements Listener
             }
         }
 	}
-	
+
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void onBlockDamage(BlockDamageEvent event)
 	{
