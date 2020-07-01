@@ -104,7 +104,7 @@ public class AIEventHandler implements Listener
         Player player = event.getPlayer();
         Block clickedBlock = event.getClickedBlock();
         if(clickedBlock == null) return;
-        if (!(clickedBlock.getType() == Material.COMPOSTER)) return;
+        if (clickedBlock.getType() != Material.COMPOSTER) return;
         tryRefillStackInHand(player, event.getHand());
     }
 
