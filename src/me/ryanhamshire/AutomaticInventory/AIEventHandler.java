@@ -100,7 +100,7 @@ public class AIEventHandler implements Listener
     
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onCompostItem(PlayerInteractEvent event) {
-        if(event.getClickedBlock().getType() == Material.COMPOSTER) {
+        if(event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == Material.COMPOSTER) {
             tryRefillStackInHand(event.getPlayer(), event.getHand());
         }
     }
