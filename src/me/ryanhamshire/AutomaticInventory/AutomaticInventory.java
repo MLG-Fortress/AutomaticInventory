@@ -6,6 +6,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,6 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -356,6 +358,51 @@ public class AutomaticInventory extends JavaPlugin
         {
             ItemStack sourceStack = source.getItem(i);
             if(sourceStack == null) continue;
+
+            // check if item is a Shulker Box
+            if(sourceStack.getItemMeta() instanceof BlockStateMeta) {
+                BlockStateMeta im = (BlockStateMeta)sourceStack.getItemMeta();
+                if(im.getBlockState() instanceof ShulkerBox) {
+                    ShulkerBox sourceShulker = (ShulkerBox) im.getBlockState();
+
+                    for(int j = 0; j < 27; j++) {
+                        ItemStack stackInShulker = sourceShulker.getInventory().getItem(j);
+
+                        if(stackInShulker == null) continue;
+                        if (AutomaticInventory.instance.config_noAutoDeposit.contains(stackInShulker.getType())) continue;
+
+                        String signature = getSignature(stackInShulker);
+                        int shulkerSourceStackSize = stackInShulker.getAmount();
+
+                        if(eligibleSignatures.contains(signature))
+                        {
+                            HashMap<Integer, ItemStack> notMoved = destination.addItem(stackInShulker);
+                            if(notMoved.isEmpty())
+                            {
+                                sourceShulker.getInventory().clear(j);
+                                deposits.totalItems += shulkerSourceStackSize;
+                            }
+                            else
+                            {
+                                int notMovedCount = notMoved.values().iterator().next().getAmount();
+                                int movedCount = shulkerSourceStackSize - notMovedCount;
+                                if(movedCount == 0)
+                                {
+                                    eligibleSignatures.remove(signature);
+                                }
+                                else
+                                {
+                                    int newAmount = shulkerSourceStackSize - movedCount;
+                                    stackInShulker.setAmount(newAmount);
+                                    deposits.totalItems += movedCount;
+                                }
+                            }
+                        }
+                    }
+                    im.setBlockState(sourceShulker);
+                    sourceStack.setItemMeta(im);
+                }
+            }
 
             if (AutomaticInventory.instance.config_noAutoDeposit.contains(sourceStack.getType())) continue;
             
