@@ -38,7 +38,7 @@ public class AutomaticInventory extends JavaPlugin
     Set<Material> config_noAutoRefill = new HashSet<>();
     Set<Material> config_noAutoDeposit = new HashSet<>();
     static boolean autosortEnabledByDefault = true;
-    private static String excludeItemsContainingThisString;
+    private static List<String> excludeItemsContainingThisString;
 		
 	//this handles data storage, like player and region data
 	public DataStore dataStore;
@@ -104,7 +104,11 @@ public class AutomaticInventory extends JavaPlugin
         autosortEnabledByDefault = config.getBoolean("autosortEnabledByDefault", true);
         outConfig.set("autosortEnabledByDefault", autosortEnabledByDefault);
 
-        excludeItemsContainingThisString = config.getString("excludeItemsContainingThisString", "");
+        excludeItemsContainingThisString = config.getStringList("excludeItemsContainingThisString");
+        String legacyExcludedItem = config.getString("excludeItemsContainingThisString");
+        if (legacyExcludedItem != null && !excludeItemsContainingThisString.toString().equals(legacyExcludedItem)) {
+            excludeItemsContainingThisString.add(legacyExcludedItem);
+        }
         outConfig.set("excludeItemsContainingThisString", excludeItemsContainingThisString);
         
         try
@@ -430,9 +434,10 @@ public class AutomaticInventory extends JavaPlugin
         if (!meta.hasDisplayName())
             return false;
         String name = meta.getDisplayName();
-        return name.contains(excludeItemsContainingThisString);
+        return excludeItemsContainingThisString.stream()
+                .anyMatch(name::contains);
     }
-    
+
     public class FakePlayerInteractEvent extends PlayerInteractEvent
     {
         public FakePlayerInteractEvent(Player player, Action rightClickBlock, ItemStack itemInHand, Block clickedBlock, BlockFace blockFace)
