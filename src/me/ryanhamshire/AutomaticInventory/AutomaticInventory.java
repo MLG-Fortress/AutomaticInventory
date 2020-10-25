@@ -106,7 +106,8 @@ public class AutomaticInventory extends JavaPlugin
 
         excludeItemsContainingThisString = config.getStringList("excludeItemsContainingThisString");
         String legacyExcludedItem = config.getString("excludeItemsContainingThisString");
-        if (legacyExcludedItem != null && !excludeItemsContainingThisString.toString().equals(legacyExcludedItem)) {
+        if (legacyExcludedItem != null && !excludeItemsContainingThisString.toString().equals(legacyExcludedItem))
+        {
             excludeItemsContainingThisString.add(legacyExcludedItem);
         }
         outConfig.set("excludeItemsContainingThisString", excludeItemsContainingThisString);
@@ -434,8 +435,7 @@ public class AutomaticInventory extends JavaPlugin
         if (!meta.hasDisplayName())
             return false;
         String name = meta.getDisplayName();
-        return excludeItemsContainingThisString.stream()
-                .anyMatch(name::contains);
+        return excludeItemsContainingThisString.stream().anyMatch(name::contains);
     }
 
     public class FakePlayerInteractEvent extends PlayerInteractEvent
