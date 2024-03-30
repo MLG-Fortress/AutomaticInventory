@@ -25,6 +25,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.projectiles.ProjectileSource;
 
@@ -223,12 +224,46 @@ public class AIEventHandler implements Listener
             if(currentStack != null) return;
 
             ItemStack bestMatchStack = null;
+            ItemStack bestShulkerStack = null;
             int bestMatchSlot = -1;
+            int bestMatchShulkerSlot = -1;
             int bestMatchStackSize = Integer.MAX_VALUE;
+            boolean bestMatchShulker = false;
+            ShulkerBox bestShulker = null;
             for(int i = 0; i < 36; i++)
             {
                 ItemStack itemInSlot = this.targetInventory.getItem(i);
                 if(itemInSlot == null) continue;
+
+                // check if item is a Shulker Box
+                if(itemInSlot.getItemMeta() instanceof BlockStateMeta) {
+                    BlockStateMeta im = (BlockStateMeta)itemInSlot.getItemMeta();
+                    if(im.getBlockState() instanceof ShulkerBox) {
+                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+
+                        for(int j = 0; j < shulker.getInventory().getSize(); j++) {
+                            ItemStack itemInShulkerSlot = shulker.getInventory().getItem(j);
+                            if(itemInShulkerSlot == null) continue;
+                            if(itemsAreSimilar(itemInShulkerSlot, this.stackToReplace))
+                            {
+                                int stackSize = itemInShulkerSlot.getAmount();
+                                if(stackSize < bestMatchStackSize)
+                                {
+                                    bestMatchStack = itemInShulkerSlot;
+                                    bestShulkerStack = itemInSlot;
+                                    bestMatchSlot = i;
+                                    bestMatchShulkerSlot = j;
+                                    bestMatchShulker = true;
+                                    bestMatchStackSize = stackSize;
+                                    bestShulker = shulker;
+                                }
+
+                                if(bestMatchStackSize == 1) break;
+                            }
+                        }
+                    }
+                }
+		
                 if(itemsAreSimilar(itemInSlot, this.stackToReplace))
                 {
                     int stackSize = itemInSlot.getAmount();
@@ -237,6 +272,7 @@ public class AIEventHandler implements Listener
                         bestMatchStack = itemInSlot;
                         bestMatchSlot = i;
                         bestMatchStackSize = stackSize;
+                        bestMatchShulker = false;
                     }
                     
                     if(bestMatchStackSize == 1) break;
@@ -246,7 +282,16 @@ public class AIEventHandler implements Listener
             if(bestMatchStack == null) return;
             
             this.targetInventory.setItem(this.slotToRefill, bestMatchStack);
-            this.targetInventory.clear(bestMatchSlot);
+            if(bestMatchShulker) {
+                bestShulker.getInventory().clear(bestMatchShulkerSlot);
+                BlockStateMeta metaShulker = (BlockStateMeta) bestShulkerStack.getItemMeta();
+                metaShulker.setBlockState(bestShulker);
+                bestShulkerStack.setItemMeta(metaShulker);
+                this.targetInventory.setItem(bestMatchSlot,bestShulkerStack);
+            }
+            else {
+                this.targetInventory.clear(bestMatchSlot);
+            }
             
             PlayerData playerData = PlayerData.FromPlayer(player); 
             if(!playerData.isGotRestackInfo())
@@ -256,7 +301,7 @@ public class AIEventHandler implements Listener
             }
         }
 	}
-	
+
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
 	public void onBlockDamage(BlockDamageEvent event)
 	{
