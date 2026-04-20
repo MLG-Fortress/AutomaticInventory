@@ -72,7 +72,7 @@ public class AutomaticInventory extends JavaPlugin
         
         for(String idString : noAutoRefillIDs_string)
         {
-            Material material = Material.matchMaterial(idString.toUpperCase());
+            Material material = parseMaterial(idString);
             if (material == null)
                 getLogger().warning(idString + " is not a valid material");
             else
@@ -92,7 +92,7 @@ public class AutomaticInventory extends JavaPlugin
         
         for(String idString : noAutoDepositIDs_string)
         {
-            Material material = Material.matchMaterial(idString.toUpperCase());
+            Material material = parseMaterial(idString);
             if (material == null)
                 getLogger().warning(idString + " is not a valid material");
             else
@@ -255,6 +255,31 @@ public class AutomaticInventory extends JavaPlugin
 
 		return false;
 	}
+
+    private Material parseMaterial(String idString)
+    {
+        Material material = Material.matchMaterial(idString.toUpperCase());
+        if (material != null)
+            return material;
+
+        try
+        {
+            int legacyId = Integer.parseInt(idString);
+            switch (legacyId)
+            {
+                case 0:
+                    return Material.AIR;
+                case 373:
+                    return Material.POTION;
+                default:
+                    return null;
+            }
+        }
+        catch (NumberFormatException ignored)
+        {
+            return null;
+        }
+    }
 
     void DeliverTutorialHyperlink(Player player)
     {
